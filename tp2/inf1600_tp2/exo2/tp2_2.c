@@ -22,9 +22,9 @@ int main(void) {
 	printf("Le résultat devrait être le même les 3 fois :\n\n");
 	func_c();
 	printf("Version en langage C : %f\n", a);
-//	a = 123456789;
-//	func_s();
-//	printf("Version en assembleur : %f\n", a);
+	a = 123456789;
+	func_s();
+	printf("Version en assembleur : %f\n", a);
 	func_c();
 	printf("Version en langage C : %f\n", a);
 	
