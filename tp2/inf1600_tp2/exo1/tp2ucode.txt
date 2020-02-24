@@ -8,9 +8,9 @@
 # Microprogramme pour la recherche d'instruction (doit commencer
 # à l'adresse 0) :
 
-0   60 30   # lire PC, écrire MA, UAL <= 3
-2   #<À REMPLIR>
-4   #<À REMPLIR>
+0   60 30   #lire PC, écrire MA, UAL <= 3
+2   C0 6C   #Lire mémoire de MA, écrire PC, UAL <=2
+4   60 82   #lire MD, écrire IR, UAL <=3
 
 
 # Microprogramme pour l'instruction "nop" (instruction qui ne fait rien) :
@@ -20,5 +20,7 @@
 # Microprogramme pour les opérations arithmétiques/logiques typiques (ajoutez
 # autant d'adresses que vous en avez besoin à partir de 0x20) :
 
-20  #<À REMPLIR>
-22  #...
+20  6E 00   # A<-R[IR<16..12>];
+22  21 10   # MA<-A+IR<11..0>;
+24  EA 0C   # MD<- M[MA] : A<-R[IR<21..17>];
+26  10 82   # R[IR<26..22>]<-A oper MD;
