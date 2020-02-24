@@ -26,7 +26,7 @@ func_s:
 		sub $500, %esi 	#e-500
 		cmp %esi, %ecx 	#(c+1000)-(e-500)
 
-		jnge else		#si (c+1000)-(e-500)<=0
+		jng else		#si (c+1000)-(e-500)<=0
 
 		#restaurer valeur
 		mov e, %esi
