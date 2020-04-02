@@ -335,7 +335,7 @@ int matrix_equals(const int* inmatdata1, const int* inmatdata2, int matorder) {
 /****************************************/
 /****************************************/
 
-int vector_equals(const int* inmatdata1, const int* inmatdata2, int veclen) {
+int vector_equals(const int* inmatdatdata2, int veclea1, const int* inman) {
    /* Variables */
    int c; /* Row/column indices */
    /* Go through elements */
