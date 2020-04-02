@@ -1,75 +1,96 @@
 .globl matrix_multiply_asm
 
+/*
+void matrix_multiply(const int* inmatdata1, const int* inmatdata2, int* outmatdata, int matorder) {
+   // Variables 
+   int r, c; // Row/column indices 
+   int i;    // Index for element calculation 
+   int elem; // Buffer for element calculation 
+   // Perform row x column multiplication 
+   for(r = 0; r < matorder; ++r) {
+      for(c = 0; c < matorder; ++c) {
+         elem = 0;
+         for(i = 0; i < matorder; ++i)
+            elem += inmatdata1[i + r * matorder] * inmatdata2[c + i * matorder];
+         outmatdata[c + r * matorder] = elem;
+      }
+   }
+}
+*/
+
+
 matrix_multiply_asm:
         push %ebp      /* save old base pointer */
         mov %esp, %ebp /* set ebp to current esp */
+
+        # pusha                   # save old values
+        movl $0, %edi           # set r=0 in edi
+        movl 20(%ebp), %esi     # set matorder in esi
+
+Loop1:
+        cmp %esi, %edi          # compare r and matorder
+        jge End                 # if r­­>=matorder jump to end
+        movl $0, %edx           # set c=0 in edx
         
-        
-        subl $16, %esp          /*allocates memory on the pile*/
-    
-        movl $0, -4(%ebp)       /* initializes r */
-        movl $0, -8(%ebp)       /* initializes c*/
-        movl $0, -12(%ebp)      /* initializes i */
-        movl 20(%ebp), %ebx     /* moves matorder */
-        
-boucleR:
-        cmp -4(%ebp), %ebx      /*compares matorder and r */
-        je end                  /* ends if equal */
+Loop2:
+        cmp %esi, %edx          # compare c and matorder
+        jge Test1
+        movl $0, %ecx           # set i=0 in ecx
+        movl $0, %ebx           # set elem=0 in ebx
 
-boucleC: 
-        cmp -8(%ebp), %ebx      /*compares matorder and c */
-        movl $0, -16(%ebp)      /*elem=0 */
-        jl boucleI
-       	jmp fin_boucleC
-       
-       
+Loop3:
+        cmp %esi, %ecx          # compare i and matorder
+        jge Loop2_2
 
-boucleI:
-        cmp -12(%ebp), %ebx    /*compares matorder and i*/
-        jl multiply             /* jump if lower */
-        movl $0, -12(%ebp)		/* initializes i*/
-     	
-        incl -8(%ebp)			/* c++ */
-    	jmp boucleC
+        push %ebx               # save elem
 
+        movl %edi, %eax         # set r in ebx
+        imul %esi, %eax         # set r * matorder in ebx
+        addl %ecx, %eax         # set i + r * matorder in ebx
+        movl 8(%ebp), %ebx      # set inmatdata1 in eax
 
-multiply:
-        movl -4(%ebp), %eax    /* moves r in %eax */
-        mull %ebx   
-        addl -12(%ebp), %eax   /*corresponds i+ r*matorder*/
-        movl 8(%ebp), ecx      /* moves inmatdata1 in eax*/
-        movl (%ecx, %eax, 4), %ecx /* inmatdata1 [i+r*matorder]*/
-        
-        movl 12(%ebp), edx      /* moves intmatdata2 in edx*/
-        movl -12(%ebp), %eax    /* moves i in %eax*/
-        mull %ebx
-        addl  -8(%ebp), %eax    /* adds c+i*matorder*/
-        movl (%edx, %eax, 4), %edx /* adds inmatdata2[c+i*matorder] */
+        movl (%ebx,%eax,4), %ebx         # set inmatdata1[i + r * matorder] in ebx
 
-        movl %ecx, %eax         /*place inmatdata1[i+r*matorder] in eax */
-        mull %edx               /* inmatdata1*inmatdata2 */
-        addl %eax, -16(%ebp)   /* elem += inmatdata1*inmatdata2 */
+        push %ebx               # save inmatdata1[i + r * matorder]
 
-        incl -12(%ebp)          /* i++ */
-        jmp boucleI
+        movl %ecx, %eax         # set i in eax
+        imul %esi, %eax         # set i * matorder in eax
+        addl %edx, %eax         # set c + i * matorder in eax
+        movl 12(%ebp), %ebx     # set inmatdata2 in ebx
 
-        
-fin_boucleC:
-        movl -4(%ebp), %eax     /* moves r in ecx*/
-        mull %ebx               /* multiplies r by matorder in ecx*/
-        addl -8(%ebp), %eax     /* c+r*matorder*/
-        movl 16(%ebp), %ecx     /* outmatdata [] in ecx */
-        movl -16(%ebp), (%eax, %ecx, 4) /* outmatdata [c+r*matorder]= elem*/
+        movl (%ebx,%eax,4), %ebx        # set inmatdata2[c + i * matorder] in ebx
 
-        movl $0, -8(%ebp)		/* initializes c*/
-        incl -4(%ebp)			/* r++ */
-    	jmp boucleR
+        pop %eax                # restore inmatdata1[i + r * matorder]
+
+        imul %ebx, %eax         # set inmatdata1[i + r * matorder] * inmatdata2[c + i * matorder] in eax
+>
+
+        pop %ebx                # restore elem
+        addl %eax, %ebx         # elem+=inmatdata1[i + r * matorder] * inmatdata2[c + i * matorder]
 
 
+        incl %ecx               # i++
+        jmp Loop3
+
+Loop2_2:
+        movl 16(%ebp), %ecx     # set outmatdata in ecx
+
+        movl %edi, %eax         # set r in eax
+        imul %esi, %eax         # set r * matorder in eax
+        addl %edx, %eax         # set c + r * matorder in eax
 
 
-end:
+        movl %ebx, (%ecx,%eax,4)           # outmatdata[c + r * matorder] = elem
 
-        addl $16, %esp	/* frees the memory */	
+        incl %edx               # c++
+        jmp Loop2
+
+Test1:
+        incl %edi               # r++
+        jmp Loop1
+
+
+End:                
+
         leave          /* restore ebp and esp */
         ret            /* return to the caller */

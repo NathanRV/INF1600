@@ -1,66 +1,74 @@
 .global matrix_diagonal_asm
 
+/*void matrix_diagonal(const int* inmatdata, int* outmatdata, int matorder) {
+   // Variables 
+   int r, c; // Row/column indices 
+   // Go through the matrix elements 
+   for(r = 0; r < matorder; ++r) {
+      for(c = 0; c < matorder; ++c) {
+		if(c == r){
+			outmatdata[c + r * matorder] = inmatdata[c + r * matorder];
+		} 
+        else{
+			outmatdata[c + r * matorder] = 0;
+		}
+      }
+   }
+}
+*/
+
 matrix_diagonal_asm:
         push %ebp      			/* Save old base pointer */
         mov %esp, %ebp 			/* Set ebp to current esp */
+		/* Write your solution here */
+        # pusha                   # save old values
+        movl $0, %edi           # set r=0 in edi
+        movl 16(%ebp), %esi     # set matorder in esi
 
-		/* save registers */
-        push %esi
-        push %edi
-        push %ebx
-
-        movl 16(%ebp), %ebx
-        movl $0, %esi        /* initializes r */
-        movl $0, %edi        /* initializes c */
-
-boucleR:
-
-        cmp %ebx, %esi  /* compares r and matorder */
-        jge end
-     
-
-boucleC:
-        cmp %ebx, %edi      /* compares c and matorder */
-        jl calcul           /* if lower do the math */
-        mov $0, %edi        /* c=0 */
-
-        incl %esi           /* r++ */
-        jmp boucleR
-
-
-calcul:
-
-        movl %esi, %eax     /* moves r in %eax */
-        mull %ebx           /* r*matorder */
-        addl %edi, %eax     /* c+ r*matorder */
-        movl 8(%ebp), ecx   /* inmatdata in %ecx */
-        movl 12(%ebp), %edx /* outmatdata in %edx */
-
-        cmp %edi, %esi      /*compares r and c*/
-        jne not_equal
-
-        movl %ecx, (%ecx, %eax, 4)      /* inmatdata [c+r*matorder] */       
-        movl %ecx, (%edx, %eax, 4)      /* outmatdata [c+r*matorder] = inmatdata */
-
-        incl  %edi  /* c++ */
-        jmp boucleC
-
-      
-
-not_equal:
-        movl 12(%ebp), %edx /* outmatdata in %edx */
-        movl $0, (%edx, %eax, 4) /* outmatdata [c+r*matorder] = 0 */
-
-        incl  %edi  /* c++ */
-        jmp boucleC
-          
+Loop1:
+        cmp %esi, %edi          # compare r and matorder
+        jge End                 # if r­­>=matorder jump to end
+        movl $0, %edx           # set c=0 in ecx
         
+Loop2:
+        cmp %esi, %edx          # compare c and matorder
+        jge Test1
 
-end:
-        pop %ebx 
-        pop %edi
-        pop %esi
-        
+        cmp %edx, %edi          # compare r and c
+        je Condition
+
+        movl %edi, %ecx         # set r in ecx
+        imul %esi, %ecx         # set r * matorder in ecx
+        addl %edx, %ecx         # set c + r * matorder in ecx
+        movl 12(%ebp), %eax     # set outmatdata in eax
+
+        movl $0, (%eax,%ecx,4)  # set 0 in outmatdata[c + r * matorder]
+
+        incl %edx               # ++c
+
+        jmp Loop2
+
+Condition:
+        movl %edi, %ecx         # set r in ecx
+        imul %esi, %ecx         # set r * matorder in ecx
+        addl %edx, %ecx         # set c + r * matorder in ecx
+        movl 8(%ebp), %ebx      # set inmatdata in ebx
+        movl 12(%ebp), %eax     # set outmatdata in eax
+
+        movl (%ebx,%ecx,4), %ebx         # set inmatdata[c + r * matorder] in ebx
+
+        movl %ebx, (%eax,%ecx,4)        # set inmatdata[c + r * matorder] in outmatdata[c + r * matorder]
+
+        incl %edx               # ++c
+
+        jmp Loop2
+
+Test1:
+        incl %edi               # ++r
+        jmp Loop1
+
+End:        		
+
         leave          			/* Restore ebp and esp */
         ret            			/* Return to the caller */
 
