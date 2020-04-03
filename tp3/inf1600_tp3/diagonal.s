@@ -1,27 +1,14 @@
 .global matrix_diagonal_asm
 
-/*void matrix_diagonal(const int* inmatdata, int* outmatdata, int matorder) {
-   // Variables 
-   int r, c; // Row/column indices 
-   // Go through the matrix elements 
-   for(r = 0; r < matorder; ++r) {
-      for(c = 0; c < matorder; ++c) {
-		if(c == r){
-			outmatdata[c + r * matorder] = inmatdata[c + r * matorder];
-		} 
-        else{
-			outmatdata[c + r * matorder] = 0;
-		}
-      }
-   }
-}
-*/
-
 matrix_diagonal_asm:
         push %ebp      			/* Save old base pointer */
         mov %esp, %ebp 			/* Set ebp to current esp */
-		/* Write your solution here */
-        # pusha                   # save old values
+		
+        # pusha                 # save old values
+        push %edi               # save register edi on the pile
+        push %esi               # save register esi on the pile
+        push %edx               # save register edx on the pile
+
         movl $0, %edi           # set r=0 in edi
         movl 16(%ebp), %esi     # set matorder in esi
 
@@ -67,7 +54,10 @@ Test1:
         incl %edi               # ++r
         jmp Loop1
 
-End:        		
+End:       
+        pop %edi                # restore r
+        pop %esi                # restore matorder
+        pop %edx                # restore c	
 
         leave          			/* Restore ebp and esp */
         ret            			/* Return to the caller */

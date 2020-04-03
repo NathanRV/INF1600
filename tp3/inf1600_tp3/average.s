@@ -1,23 +1,13 @@
 .global matrix_row_aver_asm
 
-/*void matrix_row_aver(const int* inmatdata, int* outmatdata, int matorder) {
-   // Variables 
-   int r, c; // Row/column indices 
-   int elem; // Buffer for element calculation 
-   // Perform row x column multiplication 
-   for(r = 0; r < matorder; ++r) {
-	  elem = 0;
-      for(c = 0; c < matorder; ++c) {
-         elem += inmatdata[c + r * matorder];         
-      }
-	  outmatdata[r] = elem/matorder;
-   }
-}*/
-
 matrix_row_aver_asm:
         push %ebp      			/* Save old base pointer */
         mov %esp, %ebp 			/* Set ebp to current esp */
         # pusha                   # save old values
+        push %esi               # save the register esi on the pile
+        push %edi               # save the register edi on the pile
+        push %edx               # save the register edx on the pile
+
         movl $0, %edi           # set r=0 in edi
         movl 16(%ebp), %esi     # set matorder in esi
 
@@ -45,7 +35,6 @@ Loop2:
 
 
 Loop1_2:
-        push %edx               # save c for division
         movl $0, %edx           # clear edx
 
         movl %ecx, %eax         # set elem in eax
@@ -61,7 +50,9 @@ Loop1_2:
         jmp Loop1
 
 End:          
-
+        pop %esi                # restore matorder
+        pop %edi                # restore r
+        
         leave          			/* Restore ebp and esp */
         ret           			/* Return to the caller */
 		

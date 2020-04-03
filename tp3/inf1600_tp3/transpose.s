@@ -15,14 +15,19 @@
 matrix_transpose_asm:
         push %ebp      /* save old base pointer */
         mov %esp, %ebp /* set ebp to current esp */
-        # pusha                   # save old values
+        #pusha                  # save old values
+      
+        push %esi               # save the register esi on the pile
+        push %edi               # save the register edi on the pile
+        push %edx               # save the register edx on the pile
+
         movl $0, %edi           # set r=0 in edi
         movl 16(%ebp), %esi     # set matorder in esi
 
 Loop1:
         cmp %esi, %edi          # compare r and matorder
         jge End                 # if r­­>=matorder jump to end
-        movl $0, %edx           # set c=0 in ecx
+        movl $0, %edx           # set c=0 in edx
         
 Loop2:
         cmp %esi, %edx          # compare c and matorder
@@ -51,5 +56,10 @@ Test1:
         jmp Loop1
 
 End:        
+
+        pop %edi        # restore r
+        pop %esi        # restore matorder
+        pop %edx        # restore c 
+
         leave          /* restore ebp and esp */
         ret            /* return to the caller */

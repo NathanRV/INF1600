@@ -1,29 +1,18 @@
 .globl matrix_multiply_asm
 
-/*
-void matrix_multiply(const int* inmatdata1, const int* inmatdata2, int* outmatdata, int matorder) {
-   // Variables 
-   int r, c; // Row/column indices 
-   int i;    // Index for element calculation 
-   int elem; // Buffer for element calculation 
-   // Perform row x column multiplication 
-   for(r = 0; r < matorder; ++r) {
-      for(c = 0; c < matorder; ++c) {
-         elem = 0;
-         for(i = 0; i < matorder; ++i)
-            elem += inmatdata1[i + r * matorder] * inmatdata2[c + i * matorder];
-         outmatdata[c + r * matorder] = elem;
-      }
-   }
-}
-*/
-
 
 matrix_multiply_asm:
         push %ebp      /* save old base pointer */
-        mov %esp, %ebp /* set ebp to current esp */
+        mov %esp, %ebp /* set ebp to current esp */       
 
-        # pusha                   # save old values
+        # pusha                 # save old values
+
+        push %edi               # save the register edi on the stack
+        push %esi               # save the register esi on the stack
+        push %ecx               # save the register ecx on the stack
+        
+        add $12, %esp          # save space on the pile for r, c,i 
+            
         movl $0, %edi           # set r=0 in edi
         movl 20(%ebp), %esi     # set matorder in esi
 
@@ -44,10 +33,10 @@ Loop3:
 
         push %ebx               # save elem
 
-        movl %edi, %eax         # set r in ebx
-        imul %esi, %eax         # set r * matorder in ebx
-        addl %ecx, %eax         # set i + r * matorder in ebx
-        movl 8(%ebp), %ebx      # set inmatdata1 in eax
+        movl %edi, %eax         # set r in eax
+        imul %esi, %eax         # set r * matorder in eax
+        addl %ecx, %eax         # set i + r * matorder in eax
+        movl 8(%ebp), %ebx      # set inmatdata1 in ebx
 
         movl (%ebx,%eax,4), %ebx         # set inmatdata1[i + r * matorder] in ebx
 
@@ -63,7 +52,7 @@ Loop3:
         pop %eax                # restore inmatdata1[i + r * matorder]
 
         imul %ebx, %eax         # set inmatdata1[i + r * matorder] * inmatdata2[c + i * matorder] in eax
->
+
 
         pop %ebx                # restore elem
         addl %eax, %ebx         # elem+=inmatdata1[i + r * matorder] * inmatdata2[c + i * matorder]
@@ -90,7 +79,10 @@ Test1:
         jmp Loop1
 
 
-End:                
+End:             
+        pop %edi        # restore r
+        pop %esi        # restore matorder
+        pop %ecx        # restore i
 
         leave          /* restore ebp and esp */
         ret            /* return to the caller */

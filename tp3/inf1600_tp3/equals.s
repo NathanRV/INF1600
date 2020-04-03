@@ -1,24 +1,15 @@
 .globl matrix_equals_asm
 
 
-/*int matrix_equals(const int* inmatdata1, const int* inmatdata2, int matorder) {
-   // Variables 
-   int r, c;  // Row/column indices
-   // Go through elements 
-   for(r = 0; r < matorder; ++r) {
-      for(c = 0; c < matorder; ++c) {
-         if(inmatdata1[c + r * matorder] != inmatdata2[c + r * matorder])
-            return 0;
-      }
-   }
-   return 1;
-}
-*/
-
 matrix_equals_asm:
         push %ebp               /* Save old base pointer */
         mov %esp, %ebp          /* Set ebp to current esp */
         # pusha                   # save old values
+        
+        push %esi               # save esi on the pile
+        push %edi               # save edi on the pile
+        push %ebx               # save ebx on the pile
+       
         movl $0, %ebx           # set r=0 in ebx
         movl 16(%ebp),%esi      # set matorder in esi
 
@@ -26,6 +17,7 @@ Boucle1:
         cmp  %esi, %ebx         # compare r and matorder
         jge  Break1             # jmp if r >= matorder
         movl $0, %edi           # set c=0 in edi
+     
 
 Boucle2:
         cmp  %esi, %edi         # jmp if c >= matorder
@@ -58,5 +50,9 @@ Break1:
         jmp End
         
 End:
+        pop %esi        # restores matorder
+        pop %edi        # restores c
+        pop %ebx        # restores r
+
         leave          /* Restore ebp and esp */
         ret            /* Return to the caller */
