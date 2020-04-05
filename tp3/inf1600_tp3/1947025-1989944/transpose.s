@@ -4,8 +4,7 @@
 matrix_transpose_asm:
         push %ebp      /* save old base pointer */
         mov %esp, %ebp /* set ebp to current esp */
-        #pusha                  # sauvegarder les anciennes valeurs
-      
+        
         push %esi               # sauvegarder le registre esi sur la pile
         push %edi               # sauvegarder le registre edi sur la pile
         push %edx               # sauvegarder le registre edx sur la pile

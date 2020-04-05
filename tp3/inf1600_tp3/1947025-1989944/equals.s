@@ -4,7 +4,6 @@
 matrix_equals_asm:
         push %ebp               /* Save old base pointer */
         mov %esp, %ebp          /* Set ebp to current esp */
-        # pusha                   # sauvegarder les anciennes valeurs
         
         push %esi               # sauvegarder le registre esi sur la pile
         push %edi               # sauvegarder le registre edi sur la pile
@@ -15,13 +14,13 @@ matrix_equals_asm:
 
 Boucle1:
         cmp  %esi, %ebx         # comparer r et matorder
-        jge  Break1             # sauter à Break1 si r >= matorder
+        jge  Break1             # sauter ï¿½ Break1 si r >= matorder
         movl $0, %edi           # mettre c=0 in edi
      
 
 Boucle2:
         cmp  %esi, %edi         # comparer c et matorder
-        jge  Addr               # sauter à Addr if c >= matorder
+        jge  Addr               # sauter ï¿½ Addr if c >= matorder
 
         mov  %ebx, %eax         # mettre r dans eax
         mul  %esi               # mettre r * matorder dans eax
@@ -34,7 +33,7 @@ Boucle2:
         movl (%ecx,%eax,4), %ecx         # mettre matdata2[c + r * matorder] dans ecx
 
         cmp %ecx, %edx          # comparer matdata1[c + r * matorder] et matdata2[c + r * matorder]
-        je Addc                 # Si égal, incrémenter c
+        je Addc                 # Si ï¿½gal, incrï¿½menter c
         movl $0, %eax           # retourne la valeur
         jmp End                 
 

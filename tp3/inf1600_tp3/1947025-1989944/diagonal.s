@@ -4,7 +4,6 @@ matrix_diagonal_asm:
         push %ebp      			/* Save old base pointer */
         mov %esp, %ebp 			/* Set ebp to current esp */
 		
-        # pusha                 # sauvegarder les anciennes valeurs
         push %edi               # sauvegarder le registre edi sur la pile
         push %esi               # sauvegarder le registre esi sur la pile
         push %edx               # sauvegarder le registre edx sur la pile
